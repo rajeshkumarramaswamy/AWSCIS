@@ -1,0 +1,357 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Netenrich CIS</title>
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/mdb.min.css' %}" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/b-1.5.2/b-html5-1.5.2/datatables.min.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css" />
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+  <style>
+    @font-face {
+       font-family: GothamRounded;
+       src: url("{% static 'font/GothamRounded-Bold.otf' %}"),
+       url('GothamRounded.eot');
+    }
+    body {
+      font-family: GothamRounded, Roboto;
+      background-color: darkseagreen;
+    }
+    .scrollMyCell {
+      list-style: none;
+    }
+
+    table.dataTable thead .sorting:before, table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:before, table.dataTable thead .sorting_desc_disabled:after {
+      display: none;
+    }
+    #datatable_wrapper{
+      background-color:aliceblue;
+    }
+  
+  </style>
+</head>
+
+<body>
+  <!--Navbar-->
+  <nav class="navbar navbar-expand-lg navbar-dark primary-color">
+
+    <!-- Navbar brand -->
+    <a class="navbar-brand" href="#">AWS CIS</a>
+
+    <!-- Collapse button -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav" aria-controls="basicExampleNav"
+      aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="basicExampleNav">
+
+      <!-- Links -->
+      <ul class="navbar-nav mr-auto">
+        <!-- <li class="nav-item active">
+        <a class="nav-link" href="#">Home
+          <span class="sr-only">(current)</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Features</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Examples</a>
+      </li> -->
+
+        <!-- Dropdown -->
+        <!-- <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+          aria-expanded="false">Dropdown</a>
+        <div class="dropdown-menu dropdown-primary" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li> -->
+
+      </ul>
+      <!-- Links -->
+    </div>
+    <!-- Collapsible content -->
+
+  </nav>
+  <!--/.Navbar-->
+
+
+
+  <!-- Default form subscription -->
+  <div class="container" id="app" style="margin-top:20px;">
+    <form class="text-center border border-light p-5" id="awsForm" style="border-radius: 15px;background-color:aliceblue" autocomplete="false">
+      {% csrf_token %}
+      <h2 class="h4 mb-4">AWS CIS</h2>
+      <p>Enter AWS access key and Secret key.</p>
+      <!-- Name -->
+      <div class="form-row mb-4">
+          <div class="col-sm-6">
+              <div class="md-form">
+                  <input type="password" id="accessFormKey" class="form-control" name="ak" style="width:80%">
+                  <label for="form1" >Access Key</label>
+              </div>
+        </div>
+      <!-- Email -->
+      <div class="col-sm-6">
+          <div class="md-form">
+              <input type="password" id="secretFormKey" class="form-control" name="sk" style="width:80%">
+              <label for="form1" >Secret Key</label>
+          </div>
+      <!-- Sign in button -->
+      </div>
+    </div>
+      <div class="containerButton">
+      <button class="btn btn-success" type="button" id="formSubmit" style="border-radius:50px">Submit  <div style="display: none; text-align: center" id="loader"><img src="{% static 'images/ajax-loader.gif' %}" /></div>      </button>
+    </div>
+ 
+    </form>
+  </div>
+    <div class="container" id="result" style="margin-top:20px">
+      <table class="display compact" id="datatable" style="width:100%"></table>
+    </div>
+
+  <div class="container"><div class="card" id="errorstate" style="text-align: center;color:red;font-size: 20px;font-weight: 100"></div></div>
+  <!-- Default form subscription -->
+</body>
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/mdb.min.js' %}"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.bootstrap4.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.colVis.min.js"></script>
+
+<!--<script src="https://cdn.jsdelivr.net/npm/vue"></script>-->
+<script>
+  <!--let dataS = {'data':[{ "Name": "No Root User", "Description": "Avoid the use of the root account", "ScoredControl": true, "failReason": "Used within 24h", "Result": false, "Offenders": ["arn:aws:iam::593052070155:user/AWSCodeCommit:key1", "arn:aws:iam::593052070155:user/chaitanya.chilla@netenrich.com:key1", "arn:aws:iam::593052070155:user/govindarajulu.meesala@netenrich.com:password", "arn:aws:iam::593052070155:user/maneesha.pallagani@netenrich.com:password", "arn:aws:iam::593052070155:user/manoj.palika@netenrich.com:password", "arn:aws:iam::593052070155:user/nemarketing:key1", "arn:aws:iam::593052070155:user/rajesh.kaka@netenrich.com:password", "arn:aws:iam::593052070155:user/Ramkishore.Middela@netenrich.com:password", "arn:aws:iam::593052070155:user/ravi.vadisala@netenrich.com:key1", "arn:aws:iam::593052070155:user/ravikiran.remella@netenrich.com:password", "arn:aws:iam::593052070155:user/ravikiran.remella@netenrich.com:key1", "arn:aws:iam::593052070155:user/ravindhra.bejjipuram@netenrich.com:password", "arn:aws:iam::593052070155:user/srikanth.thota@netenrich.com:password", "arn:aws:iam::593052070155:user/sudhakar.avise@netenrich.com:key1", "arn:aws:iam::593052070155:user/suresh.kasthuri@netenrich.com:password", "arn:aws:iam::593052070155:user/surparaju.rudraraju@netenrich.com:password", "arn:aws:iam::593052070155:user/test:password", "arn:aws:iam::593052070155:user/tharun.karam@netenrich.com:key1"], "ControlId": "1.1" }, -->
+  <!--{ "Name": "No Root User", "Description": "Avoid the use of the root account", "ScoredControl": true, "failReason": "Used within 24h", "Result": false, "Offenders": [], "ControlId": "1.1" },-->
+  <!--{ "Name": "No Root User", "Description": "Avoid the use of the root account", "ScoredControl": true, "failReason": "Used within 24h", "Result": false, "Offenders": [], "ControlId": "1.1" },-->
+  <!--{ "Name": "No Root User", "Description": "Avoid the use of the root account", "ScoredControl": true, "failReason": "Used within 24h", "Result": false, "Offenders": ["arn:aws:iam::593052070155:user/AWSCodeCommit:key1"], "ControlId": "1.1" },-->
+  <!--{ "Name": "No Root User", "Description": "Avoid the use of the root account", "ScoredControl": true, "failReason": "Used within 24h", "Result": false, "Offenders": ["arn:aws:iam::593052070155:user/AWSCodeCommit:key1", "arn:aws:iam::593052070155:user/chaitanya.chilla@netenrich.com:key1"], "ControlId": "1.1" }]};-->
+  $('#formSubmit').click(function () {
+    $('#loader').show();
+    $('#formSubmit').prop('disabled', true);
+    $('#formSubmit').text('Security check in progress. Please wait...')
+    $.ajax({
+      data: $('#awsForm').serialize(),
+      type: 'POST',
+      url: '/givenKey/',
+      success: function (response) {
+        let jsonObject = JSON.parse(response); 
+        console.log('clicked2');
+        console.log('datatable',response, jsonObject['data']);
+        $('#formSubmit').prop('disabled', false);
+        $('#formSubmit').text('Submit');
+        $('#loader').hide();
+        let table = $('#datatable').DataTable({
+          "processing": true,
+          "destroy":true,
+          "autoWidth": true,
+          "paging": false,
+          "data": jsonObject['data'],
+          "scrollY":"300px",
+          "scrollX":true,
+          "dom": 'Brtip',
+          "buttons": [
+          {
+                className: 'btn btn-sm btn-info',
+                extend:    'copyHtml5',
+                text:      'Copy',
+                titleAttr: 'Copy',
+                init: function(api, node, config) {
+                  $(node).removeClass('btn-secondary')
+                }
+                
+            },
+            {
+                extend:    'excelHtml5',
+                className: 'btn btn-sm btn-info',
+                text:      'Excel',
+                titleAttr: 'Excel',
+                init: function(api, node, config) {
+                  $(node).removeClass('btn-secondary')
+                }
+            },
+            {
+                extend:    'csvHtml5',
+                className: 'btn btn-sm btn-info',
+                text:      'CSV',
+                titleAttr: 'CSV',
+                init: function(api, node, config) {
+                  $(node).removeClass('btn-secondary')
+                }
+            },
+            {
+                extend:    'pdfHtml5',
+                className: 'btn btn-sm btn-info',
+                text:      'PDF',
+                titleAttr: 'PDF',
+                init: function(api, node, config) {
+                  $(node).removeClass('btn-secondary')
+                }
+            },
+        ],
+        "order": [[ 2, "desc" ]],
+        "columnDefs":[
+            { width:10, targets: 2}
+        ],
+          "aoColumns": [
+          { "data": "Description", "title": "Description"  },  
+          { "data": "ControlId", "title": "ControlId"  },
+          { "data": "Offenders",
+            "title": "Offenders",
+            "width": '300px',
+            "render": function(data, type, row){ 
+                if (data.length > 0) {
+                    let rowData = [];
+                    for(let i =0; i< data.length;i++) {
+                      if (data[i].indexOf('user') >= 0) {
+                        rowData.push('<li>'+data[i].split(':')[5]+'</li>');
+                      } else {
+                        rowData.push('<li>'+data[i]+'</li>');
+                      }
+                      
+                    }
+                    let modRow = rowData.join("")
+                    return '<ul class="scrollMyCell" style="color:red;overflow-y:auto;height:100px">'+modRow+'</ul>'
+                } else {
+                  return row.Offenders
+                }
+            } 
+          },
+          { "data": "Result",
+            "title": "Result",
+            "render": function(data, type, row){
+                if (!data) {
+                    return '<span style="color:red">'+row.Result+'</span>'
+                } else {
+                  return row.Result
+                }
+            }
+          },
+          { "data": "ScoredControl", "title": "ScoredControl"  },
+          { "data": "failReason", "title": "failReason"  },
+          ]
+        });
+      },
+      error: function(e){
+        
+        if ($("#errorstate").text().length >= 0 ) {
+          $('#errorstate').text(e.statusText).delay(1500).fadeOut()
+          $('#errorstate').text('')
+        }
+        $('#formSubmit').prop('disabled', false);
+        $('#formSubmit').text('Submit');
+        $('#loader').hide();
+        $('#accessFormKey').text('')
+        $('#secretFormKey').text('')
+        // $('#errorstate').text('')
+      }
+    })
+  });
+
+  <!--$(document).ready(function () {-->
+        <!--$('#datatable').DataTable({-->
+          <!--"processing": true,-->
+          <!--"autoWidth": true,-->
+          <!--"data": dataS['data'],-->
+          <!--"scrollY":"500px",-->
+          <!--"scrollX":true,-->
+          <!--"dom": 'Brtip',-->
+          <!--"buttons": [-->
+          <!--{-->
+                <!--className: 'btn btn-sm btn-info',-->
+                <!--extend:    'copyHtml5',-->
+                <!--text:      'Copy',-->
+                <!--titleAttr: 'Copy',-->
+                <!--init: function(api, node, config) {-->
+                  <!--$(node).removeClass('btn-secondary')-->
+                <!--}-->
+                <!---->
+            <!--},-->
+            <!--{-->
+                <!--extend:    'excelHtml5',-->
+                <!--className: 'btn btn-sm btn-info',-->
+                <!--text:      'Excel',-->
+                <!--titleAttr: 'Excel',-->
+                <!--init: function(api, node, config) {-->
+                  <!--$(node).removeClass('btn-secondary')-->
+                <!--}-->
+            <!--},-->
+            <!--{-->
+                <!--extend:    'csvHtml5',-->
+                <!--className: 'btn btn-sm btn-info',-->
+                <!--text:      'CSV',-->
+                <!--titleAttr: 'CSV',-->
+                <!--init: function(api, node, config) {-->
+                  <!--$(node).removeClass('btn-secondary')-->
+                <!--}-->
+            <!--},-->
+            <!--{-->
+                <!--extend:    'pdfHtml5',-->
+                <!--className: 'btn btn-sm btn-info',-->
+                <!--text:      'PDF',-->
+                <!--titleAttr: 'PDF',-->
+                <!--init: function(api, node, config) {-->
+                  <!--$(node).removeClass('btn-secondary')-->
+                <!--}-->
+            <!--},-->
+        <!--],-->
+        <!--"order": [[ 2, "desc" ]],-->
+        <!--"columnDefs":[-->
+            <!--{ width:10, targets: 2}-->
+        <!--],-->
+          <!--"aoColumns": [-->
+          <!--{ "data": "Description", "title": "Description"  },  -->
+          <!--{ "data": "ControlId", "title": "ControlId"  },-->
+          <!--{ "data": "Offenders",-->
+            <!--"title": "Offenders",-->
+            <!--"width": '300px',-->
+            <!--"render": function(data, type, row){ -->
+                <!--if (data.length > 0) {-->
+                    <!--let rowData = [];-->
+                    <!--for(let i =0; i< data.length;i++) {-->
+                      <!--rowData.push('<li>'+data[i].split(':')[5]+'</li>')-->
+                    <!--}-->
+                    <!--let modRow = rowData.join("")-->
+                    <!--return '<ul class="scrollMyCell" style="color:red;overflow-y:auto;height:100px">'+modRow+'</ul>'-->
+                <!--} else {-->
+                  <!--return row.Offenders-->
+                <!--}-->
+            <!--} -->
+          <!--},-->
+          <!--{ "data": "Result",-->
+            <!--"title": "Result",-->
+            <!--"render": function(data, type, row){-->
+                <!--if (!data) {-->
+                    <!--return '<span style="color:red">'+row.Result+'</span>'-->
+                <!--} else {-->
+                  <!--return row.Result-->
+                <!--}-->
+            <!--}-->
+          <!--},-->
+          <!--{ "data": "ScoredControl", "title": "ScoredControl"  },-->
+          <!--{ "data": "failReason", "title": "failReason"  },-->
+          <!--]-->
+        <!--});-->
+  <!--})-->
+</script>
+
+</html>
