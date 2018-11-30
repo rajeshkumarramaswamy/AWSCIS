@@ -1,4 +1,5 @@
 from django.shortcuts import render, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 import boto3
 import time, json
 from . import checks
@@ -12,6 +13,14 @@ SUCCESS_KEY = ''
 
 def index(request):
     return render(request, 'index.html')
+
+def vuebase(request):
+    return render(request, 'vueIndex.html')
+
+def vueFormSubmit(request):
+    print('Entered')
+    import pdb;pdb.set_trace()
+    return HttpResponse()
 
 def enterDetails(request):
     sk = request.POST.get('sk')

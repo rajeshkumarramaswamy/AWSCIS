@@ -40,7 +40,7 @@
   <nav class="navbar navbar-expand-lg navbar-dark primary-color">
 
     <!-- Navbar brand -->
-    <a class="navbar-brand" href="#">AWS CIS</a>
+    <!-- <a class="navbar-brand" href="#">AWS CIS</a> -->
 
     <!-- Collapse button -->
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav" aria-controls="basicExampleNav"
@@ -53,11 +53,11 @@
 
       <!-- Links -->
       <ul class="navbar-nav mr-auto">
-        <!-- <li class="nav-item active">
-        <a class="nav-link" href="#">Home
-          <span class="sr-only">(current)</span>
+         <li class="nav-item active">
+        <a class="nav-link" href="{% url 'vue' %}">Vue
         </a>
       </li>
+      <!--
       <li class="nav-item">
         <a class="nav-link" href="#">Features</a>
       </li>
@@ -90,7 +90,7 @@
   <div class="container" id="app" style="margin-top:20px;">
     <form class="text-center border border-light p-5" id="awsForm" style="border-radius: 15px;background-color:aliceblue" autocomplete="false">
       {% csrf_token %}
-      <h2 class="h4 mb-4">AWS CIS</h2>
+      <h2 class="h4 mb-4">AWS Security checks</h2>
       <p>Enter AWS access key and Secret key.</p>
       <!-- Name -->
       <div class="form-row mb-4">
